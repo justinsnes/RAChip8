@@ -138,6 +138,40 @@ int main(int argc, char **argv) {
             case 0x7000:
                 opcode_7xkk(&chip8);
                 break;
+            case 0x8000:
+                switch (chip8.opcode & 0x000F) {
+                    case 0x0000:
+                        opcode_8xy0(&chip8);
+                        break;
+                    case 0x0001:
+                        opcode_8xy1(&chip8);
+                        break;
+                    case 0x0002:
+                        opcode_8xy2(&chip8);
+                        break;
+                    case 0x0003:
+                        opcode_8xy3(&chip8);
+                        break;
+                    case 0x0004:
+                        opcode_8xy4(&chip8);
+                        break;
+                    case 0x0005:
+                        opcode_8xy5(&chip8);
+                        break;
+                    case 0x0006:
+                        opcode_8xy6(&chip8);
+                        break;
+                    case 0x0007:
+                        opcode_8xy7(&chip8);
+                        break;
+                    case 0x000E:
+                        opcode_8xyE(&chip8);
+                        break;
+                    default:
+                        fprintf(stderr, "Unknown opcode: %04X\n", chip8.opcode);
+                        break;
+                }
+                break;
             case 0x9000:
                 opcode_9xy0(&chip8);
                 break;

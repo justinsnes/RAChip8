@@ -96,6 +96,134 @@ void opcode_7xkk(Chip8 *chip8) {
     chip8->pc += 2;
 }
 
+// 8xy0 - LD Vx, Vy
+void opcode_8xy0(Chip8 *chip8) {
+    // Stores the value of register Vy in register Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    chip8->V[x] = chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy1 - OR Vx, Vy
+void opcode_8xy1(Chip8 *chip8) {
+    // Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    chip8->V[x] |= chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy2 - AND Vx, Vy
+void opcode_8xy2(Chip8 *chip8) {
+    // Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    chip8->V[x] &= chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy3 - XOR Vx, Vy
+void opcode_8xy3(Chip8 *chip8) {
+    // Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    chip8->V[x] ^= chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy4 - ADD Vx, Vy
+void opcode_8xy4(Chip8 *chip8) {
+    // Set Vx = Vx + Vy, set VF = carry.
+    // The values of Vx and Vy are added together. 
+    // If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. 
+    // Only the lowest 8 bits of the result are kept, and stored in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    if (x + y > 255) {
+        chip8->V[0xF] = 1;
+    } else {
+        chip8->V[0xF] = 0;
+    }
+    chip8->V[x] += chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy5 - SUB Vx, Vy
+void opcode_8xy5(Chip8 *chip8) {
+    // Set Vx = Vx - Vy, set VF = NOT borrow.
+    // If Vx > Vy, then VF is set to 1, otherwise 0. 
+    // Then Vy is subtracted from Vx, and the results stored in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    if (chip8->V[x] > chip8->V[y]) {
+        chip8->V[0xF] = 1;
+    } else {
+        chip8->V[0xF] = 0;
+    }
+    chip8->V[x] -= chip8->V[y];
+
+    chip8->pc += 2;
+}
+
+// 8xy6 - SHR Vx {, Vy}
+// SHR is shift right (bitwise operation).
+void opcode_8xy6(Chip8 *chip8) {
+    // Set Vx = Vx SHR 1.
+    // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. 
+    // Then Vx is divided by 2. (bitshift right by 1)
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t lsb = chip8->V[x] & 0x1;
+    if (lsb == 1) {
+        chip8->V[0xF] = 1;
+    } else {
+        chip8->V[0xF] = 0;
+    }
+    chip8->V[x] = chip8->V[x] >> 1;
+
+    chip8->pc += 2;
+}
+
+// 8xy7 - SUBN Vx, Vy
+void opcode_8xy7(Chip8 *chip8) {
+    // Set Vx = Vy - Vx, set VF = NOT borrow.
+    // If Vy > Vx, then VF is set to 1, otherwise 0. 
+    // Then Vx is subtracted from Vy, and the results stored in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
+    if (chip8->V[y] > chip8->V[x]) {
+        chip8->V[0xF] = 1;
+    } else {
+        chip8->V[0xF] = 0;
+    }
+    chip8->V[x] = chip8->V[y] - chip8->V[x];
+
+    chip8->pc += 2;
+}
+
+// 8xyE - SHL Vx {, Vy}
+// SHL is shift left (bitwise operation).
+void opcode_8xyE(Chip8 *chip8) {
+    // Set Vx = Vx SHL 1.
+    // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise 0. 
+    // Then Vx is multiplied by 2. (bitshift left by 1)
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t msb = chip8->V[x] & 0x80; // 1000 0000
+    if (msb == 1) {
+        chip8->V[0xF] = 1;
+    } else {
+        chip8->V[0xF] = 0;
+    }
+    chip8->V[x] = chip8->V[x] << 1;
+
+    chip8->pc += 2;
+}
+
 // 9xy0 - SNE Vx, Vy
 void opcode_9xy0(Chip8 *chip8) {
     // The interpreter compares register Vx to register Vy. 
