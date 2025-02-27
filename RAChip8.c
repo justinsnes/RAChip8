@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     initialize(&chip8);
 
     // Load ROM into memory starting at 0x200
-    FILE *rom = fopen("TestROMs/chiptest-mini-offstatic.ch8", "rb");
+    FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
         fprintf(stderr, "Failed to open ROM\n");
         return 1;
@@ -83,8 +83,6 @@ int main(int argc, char **argv) {
     printf("Memory at 0x21E: %02X%02X\n", chip8.memory[0x21E], chip8.memory[0x21F]);
     printf("Memory at 0x220: %02X%02X\n", chip8.memory[0x220], chip8.memory[0x221]);
 
-    // Display.c implementation
-    //Display display;
     initDisplay(&chip8.display, "CHIP-8 Emulator", DISPLAY_WIDTH * 10, DISPLAY_HEIGHT * 10);
 
     // Set a few pixels in the corners for testing
