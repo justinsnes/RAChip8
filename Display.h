@@ -22,7 +22,7 @@ void updateDisplay(Display *display);
 // Function to set a pixel on the display
 void setPixel(Display *display, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-// Function to destroy the display
+// Function to destroy the display. Frees up the memory allocated to the renderer and window
 void destroyDisplay(Display *display);
 
 #endif // DISPLAY_H

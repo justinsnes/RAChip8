@@ -1,4 +1,3 @@
-
 #include "Display.h"
 
 int initDisplay(Display *display, const char *title, int width, int height) {

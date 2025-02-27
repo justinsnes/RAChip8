@@ -6,41 +6,9 @@
 //sudo apt-get install libsdl2-dev
 #include <SDL2/SDL.h>
 
+#include "Chip8.h"
 #include "Display.h"
-
-// Memory addresses are 0x000 to 0xFFF
-#define MEMORY_SIZE 4096
-// 16 general 8-bit registers. V0 to VF. VF never used by programs 
-//  and is used as a flag by some instructions.
-// there is also a 16-bit register I. Stores memory addresses.
-#define GENERAL_REGISTER_COUNT 16
-#define STACK_SIZE 16
-#define KEYPAD_SIZE 16
-#define DISPLAY_WIDTH 64
-#define DISPLAY_HEIGHT 32
-
-#define RED_VAL 0
-#define GREEN_VAL 255
-#define BLUE_VAL 255
-#define ALPHA_VAL 255
-
-typedef struct {
-    uint8_t memory[MEMORY_SIZE];
-    // registers
-    uint8_t V[GENERAL_REGISTER_COUNT];
-    // register I usually used to store memory addresses
-    uint16_t I;
-    uint16_t pc;
-    uint16_t stack[STACK_SIZE];
-    uint8_t sp;
-    uint8_t delay_timer;
-    uint8_t sound_timer;
-
-    //uint8_t keypad[KEYPAD_SIZE];
-    //uint32_t display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
-    Display display;
-    uint16_t opcode;
-} Chip8;
+#include "Opcodes.h"
 
 void initialize(Chip8 *chip8) {
     // 0x000 to 0x1FF reserved for interpreter itself
@@ -93,62 +61,6 @@ void initialize(Chip8 *chip8) {
     // Reset timers
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
-}
-
-// 1nnn - JP addr
-void opcode_1nnn(Chip8 *chip8) {
-    // The interpreter sets the program counter to nnn.
-    uint16_t nnn = chip8->opcode & 0x0FFF;
-    chip8->pc = nnn;
-}
-
-// 6xnn - LD Vx, byte
-void opcode_6xnn(Chip8 *chip8) {
-    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
-    uint8_t nn = chip8->opcode & 0x00FF;
-    chip8->V[x] = nn;
-
-    chip8->pc += 2;
-}
-
-// Annn - LD I, addr
-void opcode_Annn(Chip8 *chip8) {
-    chip8->I = chip8->opcode & 0x0FFF;
-
-    chip8->pc += 2;
-}
-
-// Dxyn - DRW Vx, Vy, nibble
-// Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
-void opcode_Dxyn(Chip8 *chip8) {
-    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
-    uint8_t y = (chip8->opcode & 0x00F0) >> 4;
-    uint8_t nBytes = chip8->opcode & 0x000F;
-
-    // each byte represents a row of 8 pixels aka 1 yline
-    chip8->V[0xF] = 0;
-    for (int yline = 0; yline < nBytes; ++yline) {
-        uint8_t pixel = chip8->memory[chip8->I + yline];
-        for (int xline = 0; xline < 8; ++xline) {
-            // The interpreter reads n bytes from memory, starting at the address stored in I.
-            // These bytes are then displayed as sprites on screen at coordinates (Vx, Vy).
-            // Sprites are XORed onto the existing screen.
-            // If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0.
-            // If the sprite is positioned so part of it is outside the coordinates of the display,
-            // it wraps around to the opposite side of the screen.
-            if ((pixel & (0x80 >> xline)) != 0) {
-                setPixel(&chip8->display, chip8->V[x] + xline, chip8->V[y] + yline, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-                // if (chip8->display[(chip8->V[x] + xline + ((chip8->V[y] + yline) * DISPLAY_WIDTH))] == 1) {
-                //     chip8->V[0xF] = 1;
-                // }
-                // chip8->display[chip8->V[x] + xline + ((chip8->V[y] + yline) * DISPLAY_WIDTH)] ^= 1;
-            }
-            
-        }
-    }
-    updateDisplay(&chip8->display);
-
-    chip8->pc += 2;
 }
 
 int main(int argc, char **argv) {
