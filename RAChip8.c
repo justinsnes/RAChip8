@@ -104,14 +104,51 @@ int main(int argc, char **argv) {
 
         // Decode and execute opcode
         switch (chip8.opcode & 0xF000) {
+            case 0x0000:
+                switch (chip8.opcode & 0x00FF) {
+                    case 0x00E0:
+                        opcode_00E0(&chip8);
+                        break;
+                    case 0x00EE:
+                        opcode_00EE(&chip8);
+                        break;
+                    default:
+                        fprintf(stderr, "Unknown opcode: %04X\n", chip8.opcode);
+                        break;
+                }
+                break;
             case 0x1000:
                 opcode_1nnn(&chip8);
+                break;
+            case 0x2000:
+                opcode_2nnn(&chip8);
+                break;
+            case 0x3000:
+                opcode_3xkk(&chip8);
+                break;
+            case 0x4000:
+                opcode_4xkk(&chip8);
+                break;
+            case 0x5000:
+                opcode_5xy0(&chip8);
                 break;
             case 0x6000:
                 opcode_6xnn(&chip8);
                 break;
+            case 0x7000:
+                opcode_7xkk(&chip8);
+                break;
+            case 0x9000:
+                opcode_9xy0(&chip8);
+                break;
             case 0xA000:
                 opcode_Annn(&chip8);
+                break;
+            case 0xB000:
+                opcode_Bnnn(&chip8);
+                break;
+            case 0xC000:
+                opcode_Cxkk(&chip8);
                 break;
             case 0xD000:
                 opcode_Dxyn(&chip8);
