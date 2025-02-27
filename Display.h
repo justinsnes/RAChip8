@@ -1,0 +1,28 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
+
+#include <SDL2/SDL.h>
+
+typedef struct {
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    int width;
+    int height;
+} Display;
+
+// Function to initialize the display
+int initDisplay(Display *display, const char *title, int width, int height);
+
+// Function to clear the display
+void clearDisplay(Display *display);
+
+// Function to update the display
+void updateDisplay(Display *display);
+
+// Function to set a pixel on the display
+void setPixel(Display *display, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+// Function to destroy the display
+void destroyDisplay(Display *display);
+
+#endif // DISPLAY_H
