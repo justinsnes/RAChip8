@@ -16,7 +16,7 @@ void initialize(Chip8 *chip8) {
     chip8->opcode = 0;
     chip8->I = 0;
     chip8->sp = 0;
-
+    
     // Clear stack, registers, and memory
     for (int i = 0; i < STACK_SIZE; ++i) {
         chip8->stack[i] = 0;
@@ -58,6 +58,24 @@ void initialize(Chip8 *chip8) {
         chip8->memory[i] = chip8_fontset[i];
     }
 
+    // keyboard mapping values
+    chip8->keypad[0x1] = SDLK_1;
+    chip8->keypad[0x2] = SDLK_2;
+    chip8->keypad[0x3] = SDLK_3;
+    chip8->keypad[0xC] = SDLK_4;
+    chip8->keypad[0x4] = SDLK_q;
+    chip8->keypad[0x5] = SDLK_w;
+    chip8->keypad[0x6] = SDLK_e;
+    chip8->keypad[0xD] = SDLK_r;
+    chip8->keypad[0x7] = SDLK_a;
+    chip8->keypad[0x8] = SDLK_s;
+    chip8->keypad[0x9] = SDLK_d;
+    chip8->keypad[0xE] = SDLK_f;
+    chip8->keypad[0xA] = SDLK_z;
+    chip8->keypad[0x0] = SDLK_x;
+    chip8->keypad[0xB] = SDLK_c;
+    chip8->keypad[0xF] = SDLK_v;
+
     // Reset timers
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
@@ -92,7 +110,9 @@ int main(int argc, char **argv) {
     setPixel(&chip8.display, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
     updateDisplay(&chip8.display);
 
-    int breakpointnum = 2 + 2;
+    // for measuring time to obtain 60hz/60fps
+    Uint32 lastTime = SDL_GetTicks();
+    double delta = 0;
 
     // Main emulation loop
     for (;;) {
@@ -187,18 +207,78 @@ int main(int argc, char **argv) {
             case 0xD000:
                 opcode_Dxyn(&chip8);
                 break;
+            case 0xE000:
+                switch (chip8.opcode & 0x00FF) {
+                    case 0x009E:
+                        opcode_Ex9E(&chip8);
+                        break;
+                    case 0x00A1:
+                        opcode_ExA1(&chip8);
+                        break;
+                    default:
+                        fprintf(stderr, "Unknown opcode: %04X\n", chip8.opcode);
+                        break;
+                }
+                break;
+            case 0xF000:
+                switch (chip8.opcode & 0x00FF) {
+                    case 0x0007:
+                        opcode_Fx07(&chip8);
+                        break;
+                    case 0x000A:
+                        opcode_Fx0A(&chip8);
+                        break;
+                    case 0x0015:
+                        opcode_Fx15(&chip8);
+                        break;
+                    case 0x0018:
+                        opcode_Fx18(&chip8);
+                        break;
+                    case 0x001E:
+                        opcode_Fx1E(&chip8);
+                        break;
+                    case 0x0029:
+                        opcode_Fx29(&chip8);
+                        break;
+                    case 0x0033:
+                        opcode_Fx33(&chip8);
+                        break;
+                    case 0x0055:
+                        opcode_Fx55(&chip8);
+                        break;
+                    case 0x0065:
+                        opcode_Fx65(&chip8);
+                        break;
+                    default:
+                        fprintf(stderr, "Unknown opcode: %04X\n", chip8.opcode);
+                        break;
+                }
+                break;
             default:
                 fprintf(stderr, "Unknown opcode: %04X\n", chip8.opcode);
                 break;
         }
 
-        // Update timers
-        if (chip8.delay_timer > 0) {
-            --chip8.delay_timer;
+        // Update timers at a rate of 60Hz
+        Uint32 currentTime = SDL_GetTicks();
+        delta = (currentTime - lastTime);
+        bool nextFrame = false;
+        if (delta >= 1000.0 / 60.0) {
+            fprintf(stderr, "frame detected at %d - %d = %f\n", currentTime, lastTime, delta);
+            lastTime = currentTime;
+            delta = 0;
+            nextFrame = true;
         }
-        if (chip8.sound_timer > 0) {
-            --chip8.sound_timer;
+
+        if (nextFrame) {
+            if (chip8.delay_timer > 0) {
+                --chip8.delay_timer;
+            }
+            if (chip8.sound_timer > 0) {
+                --chip8.sound_timer;
+            }
         }
+        
     }
 
     return 0;

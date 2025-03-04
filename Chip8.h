@@ -33,8 +33,7 @@ typedef struct {
     uint8_t delay_timer;
     uint8_t sound_timer;
 
-    //uint8_t keypad[KEYPAD_SIZE];
-    //uint32_t display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
+    uint8_t keypad[KEYPAD_SIZE];
     Display display;
     uint16_t opcode;
 } Chip8;

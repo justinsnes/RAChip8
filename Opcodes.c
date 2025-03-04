@@ -1,6 +1,8 @@
 #include "Chip8.h"
 #include "Opcodes.h"
 
+#include <stdbool.h>
+
 // 00E0 - CLS
 void opcode_00E0(Chip8 *chip8) {
     // Clear the display.
@@ -293,6 +295,137 @@ void opcode_Dxyn(Chip8 *chip8) {
         }
     }
     updateDisplay(&chip8->display);
+
+    chip8->pc += 2;
+}
+
+// Ex9E - SKP Vx
+void opcode_Ex9E(Chip8 *chip8) {
+    // Skip the next instruction if the key stored in Vx is pressed.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t ch8key = chip8->V[x];
+    int sdlKeyValue = chip8->keypad[ch8key];
+    const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
+    if (keyPressedState) {
+        chip8->pc += 2;
+    }
+
+    chip8->pc += 2;
+}
+
+// ExA1 - SKNP Vx
+void opcode_ExA1(Chip8 *chip8) {
+    // Skip the next instruction if the key stored in Vx is not pressed.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t ch8key = chip8->V[x];
+    int sdlKeyValue = chip8->keypad[ch8key];
+    const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
+    if (!keyPressedState) {
+        chip8->pc += 2;
+    }
+    
+    chip8->pc += 2;
+}
+
+// Fx07 - LD Vx, DT
+void opcode_Fx07(Chip8 *chip8) {
+    // Set Vx = delay timer value.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    chip8->V[x] = chip8->delay_timer;
+
+    chip8->pc += 2;
+}
+
+// Fx0A - LD Vx, K
+void opcode_Fx0A(Chip8 *chip8) {
+    // Wait for a key press, store the value of the key in Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    while (1) {
+        for (int i = 0; i < KEYPAD_SIZE; ++i) {
+            int sdlKeyValue = chip8->keypad[i];
+            const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
+            if (keyPressedState) {
+                chip8->V[x] = i;
+                chip8->pc += 2;
+                return;
+            }
+        }
+    }
+}
+
+// Fx15 - LD DT, Vx
+void opcode_Fx15(Chip8 *chip8) {
+    // Set delay timer = Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    chip8->delay_timer = chip8->V[x];
+
+    chip8->pc += 2;
+}
+
+// Fx18 - LD ST, Vx
+void opcode_Fx18(Chip8 *chip8) {
+    // Set sound timer = Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    chip8->sound_timer = chip8->V[x];
+
+    chip8->pc += 2;
+}
+
+// Fx1E - ADD I, Vx
+void opcode_Fx1E(Chip8 *chip8) {
+    // Set I = I + Vx.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    chip8->I += chip8->V[x];
+
+    chip8->pc += 2;
+}
+
+// Fx29 - LD F, Vx
+void opcode_Fx29(Chip8 *chip8) {
+    // Set I = location of sprite for digit Vx.
+    // digit Vx corresponds to the digit in the hexadecimal system.
+    // each digit is 5 bytes long. therefore, we need to account for this by skipping
+    // 5 bytes for each digit.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    chip8->I = chip8->V[x] * 5; // each sprite is 5 bytes long
+
+    chip8->pc += 2;
+}
+
+// Fx33 - LD B, Vx
+void opcode_Fx33(Chip8 *chip8) {
+    // Store BCD representation of Vx in memory locations I, I+1, and I+2.
+    // Binary Coded Decimal (BCD) is a way to store numbers in memory.
+    // Each digit stored in its own nibble (4 bits).
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t value = chip8->V[x];
+    // get each digit by shifting the decimal to the right and 
+    // masking the last digit with a modulo operation.
+    chip8->memory[chip8->I] = (value / 100) % 10;
+    chip8->memory[chip8->I + 1] = (value / 10) % 10;
+    chip8->memory[chip8->I + 2] = value % 10;
+
+    chip8->pc += 2;
+}
+
+// Fx55 - LD [I], Vx
+void opcode_Fx55(Chip8 *chip8) {
+    // Store registers V0 through Vx in memory starting at location I.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    for (int i = 0; i <= x; ++i) {
+        chip8->memory[chip8->I + i] = chip8->V[i];
+    }
+
+    chip8->pc += 2;
+}
+
+// Fx65 - LD Vx, [I]
+void opcode_Fx65(Chip8 *chip8) {
+    // Read registers V0 through Vx from memory starting at location I.
+    uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+    for (int i = 0; i <= x; ++i) {
+        chip8->V[i] = chip8->memory[chip8->I + i];
+    }
 
     chip8->pc += 2;
 }
