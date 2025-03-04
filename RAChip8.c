@@ -69,8 +69,8 @@ int main(int argc, char **argv) {
     initialize(&chip8);
 
     // Load ROM into memory starting at 0x200
-    FILE *rom = fopen("TestROMs/Breakout [Carmelo Cortez, 1979].ch8", "rb");
-    //FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
+    //FILE *rom = fopen("TestROMs/Breakout [Carmelo Cortez, 1979].ch8", "rb");
+    FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
     //FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
     //FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
         delta = (currentTime - lastTime);
         bool nextFrame = false;
         if (delta >= 1000.0 / 60.0) {
-            fprintf(stderr, "frame detected at %d - %d = %f\n", currentTime, lastTime, delta);
+            //fprintf(stderr, "frame detected at %d - %d = %f\n", currentTime, lastTime, delta);
             lastTime = currentTime;
             delta = 0;
             nextFrame = true;
