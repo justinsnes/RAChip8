@@ -10,7 +10,7 @@ typedef struct {
     SDL_Renderer *renderer;
     int width;
     int height;
-    u_int8_t pixels[DISPLAY_WIDTH][DISPLAY_HEIGHT];
+    uint8_t pixels[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 } Display;
 
 // Function to initialize the display

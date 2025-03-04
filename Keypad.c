@@ -5,7 +5,7 @@
 // 4 5 6 D = Q W E R
 // 7 8 9 E = A S D F
 // A 0 B F = Z X C V
-u_int8_t Keypad[KEYS] = 
+uint8_t Keypad[KEYS] = 
 {
     SDLK_x, SDLK_1, SDLK_2, SDLK_3,
     SDLK_q, SDLK_w, SDLK_e, SDLK_a,
@@ -22,7 +22,6 @@ int checkForKeyPress(SDL_Event *event)
             if (event->key.keysym.sym == Keypad[i])
             {
                 printf("Key pressed: %x\n", i);
-                //*key = i;
 
                 return i;
             }

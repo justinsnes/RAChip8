@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 #define KEYS 16
-extern u_int8_t Keypad[KEYS];
+extern uint8_t Keypad[KEYS];
 
 int checkForKeyPress(SDL_Event *event);
 

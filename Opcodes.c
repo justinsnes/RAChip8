@@ -286,14 +286,16 @@ void opcode_Dxyn(Chip8 *chip8) {
             // 0x80 is 10000000. This is our starting bit mask to test. 
             // each bit in the Sprite Byte will be tested.
             if ((spriteByte & (0x80 >> xline)) != 0) {
-                u_int8_t xCoord = chip8->V[x] + xline;
-                u_int8_t yCoord = chip8->V[y] + yline;
+                uint8_t xCoord = chip8->V[x] + xline;
+                uint8_t yCoord = chip8->V[y] + yline;
+                
                 chip8->display.pixels[xCoord][yCoord] ^= 1;
                 if (chip8->display.pixels[xCoord][yCoord] == 0) {
+                    // if being toggled and the pixel ends up as off, 
+                    // then collision was detected
                     chip8->V[0xF] = 1;
                     setPixel(&chip8->display, xCoord, yCoord, 0, 0, 0, 0);
                 } else {
-                    //chip8->V[0xF] = 0;
                     setPixel(&chip8->display, xCoord, yCoord, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
                 }
             }
@@ -363,7 +365,7 @@ void opcode_Fx0A(Chip8 *chip8) {
     uint8_t x = (chip8->opcode & 0x0F00) >> 8;
 
     SDL_Event e;
-    u_int8_t foundKey = 0;
+    uint8_t foundKey = 0;
     while (1) {
         while(SDL_PollEvent(&e)) {
             if (e.type == SDL_KEYDOWN) {
