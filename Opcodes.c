@@ -288,6 +288,10 @@ void opcode_Dxyn(Chip8 *chip8) {
             if ((spriteByte & (0x80 >> xline)) != 0) {
                 uint8_t xCoord = chip8->V[x] + xline;
                 uint8_t yCoord = chip8->V[y] + yline;
+
+                // modulo operation to wrap around the screen if out of bounds
+                xCoord = xCoord % DISPLAY_WIDTH;
+                yCoord = yCoord % DISPLAY_HEIGHT;
                 
                 chip8->display.pixels[xCoord][yCoord] ^= 1;
                 if (chip8->display.pixels[xCoord][yCoord] == 0) {
