@@ -3,11 +3,14 @@
 
 #include <SDL2/SDL.h>
 
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
 typedef struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
     int width;
     int height;
+    u_int8_t pixels[DISPLAY_WIDTH][DISPLAY_HEIGHT];
 } Display;
 
 // Function to initialize the display

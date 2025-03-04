@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 //sudo apt-get install libsdl2-dev
 #include <SDL2/SDL.h>
@@ -86,7 +87,8 @@ int main(int argc, char **argv) {
     initialize(&chip8);
 
     // Load ROM into memory starting at 0x200
-    FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
+    FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
+    //FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
         fprintf(stderr, "Failed to open ROM\n");
         return 1;
@@ -116,7 +118,10 @@ int main(int argc, char **argv) {
 
     // Main emulation loop
     for (;;) {
-        
+        usleep(1000 * 10); // sleep for 10ms (in an effort to put a cap on CPU cycles)
+        // a truely accurate implementation would be to measure each instruction's
+        // microseconds individually. 
+
         // Fetch, decode, and execute instructions
         // Fetch opcode using bitwise or operator. 
         // First byte is the high byte. second byte is the low byte.

@@ -285,11 +285,16 @@ void opcode_Dxyn(Chip8 *chip8) {
             // 0x80 is 10000000. This is our starting bit mask to test. 
             // each bit in the Sprite Byte will be tested.
             if ((spriteByte & (0x80 >> xline)) != 0) {
-                setPixel(&chip8->display, chip8->V[x] + xline, chip8->V[y] + yline, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-                // if (chip8->display[(chip8->V[x] + xline + ((chip8->V[y] + yline) * DISPLAY_WIDTH))] == 1) {
-                //     chip8->V[0xF] = 1;
-                // }
-                // chip8->display[chip8->V[x] + xline + ((chip8->V[y] + yline) * DISPLAY_WIDTH)] ^= 1;
+                u_int8_t xCoord = chip8->V[x] + xline;
+                u_int8_t yCoord = chip8->V[y] + yline;
+                chip8->display.pixels[xCoord][yCoord] ^= 1;
+                if (chip8->display.pixels[xCoord][yCoord] == 0) {
+                    chip8->V[0xF] = 1;
+                    setPixel(&chip8->display, xCoord, yCoord, 0, 0, 0, 0);
+                } else {
+                    //chip8->V[0xF] = 0;
+                    setPixel(&chip8->display, xCoord, yCoord, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
+                }
             }
             
         }

@@ -5,6 +5,12 @@ int initDisplay(Display *display, const char *title, int width, int height) {
         return -1;
     }
 
+    for (int i = 0; i < DISPLAY_WIDTH; ++i) {
+        for (int j = 0; j < DISPLAY_HEIGHT; ++j) {
+            display->pixels[i][j] = 0;
+        }
+    }
+
     display->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
     if (display->window == NULL) {
         SDL_Quit();
@@ -28,7 +34,7 @@ int initDisplay(Display *display, const char *title, int width, int height) {
 }
 
 void clearDisplay(Display *display) {
-    //SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
     SDL_RenderClear(display->renderer);
     SDL_RenderPresent(display->renderer);
 }

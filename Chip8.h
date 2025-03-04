@@ -13,8 +13,6 @@
 #define GENERAL_REGISTER_COUNT 16
 #define STACK_SIZE 16
 #define KEYPAD_SIZE 16
-#define DISPLAY_WIDTH 64
-#define DISPLAY_HEIGHT 32
 
 #define RED_VAL 0
 #define GREEN_VAL 255
