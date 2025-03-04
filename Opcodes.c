@@ -1,5 +1,6 @@
 #include "Chip8.h"
 #include "Opcodes.h"
+#include "Keypad.h"
 
 #include <stdbool.h>
 
@@ -309,10 +310,17 @@ void opcode_Ex9E(Chip8 *chip8) {
     // Skip the next instruction if the key stored in Vx is pressed.
     uint8_t x = (chip8->opcode & 0x0F00) >> 8;
     uint8_t ch8key = chip8->V[x];
-    int sdlKeyValue = chip8->keypad[ch8key];
-    const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
-    if (keyPressedState) {
-        chip8->pc += 2;
+
+    SDL_Event e;
+    while(SDL_PollEvent(&e)) {
+        printf("Ex9E - Event type: %d\n", e.type);
+        if (e.type == SDL_KEYDOWN) {
+            int foundKey = checkForKeyPress(&e);
+            if (foundKey == Keypad[ch8key]) {
+                chip8->V[x] = foundKey;
+                chip8->pc += 2;
+            }
+        }
     }
 
     chip8->pc += 2;
@@ -323,12 +331,20 @@ void opcode_ExA1(Chip8 *chip8) {
     // Skip the next instruction if the key stored in Vx is not pressed.
     uint8_t x = (chip8->opcode & 0x0F00) >> 8;
     uint8_t ch8key = chip8->V[x];
-    int sdlKeyValue = chip8->keypad[ch8key];
-    const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
-    if (!keyPressedState) {
-        chip8->pc += 2;
-    }
     
+    SDL_Event e;
+    while(SDL_PollEvent(&e)) {
+        printf("ExA1 - Event type: %d\n", e.type);
+        if (e.type == SDL_KEYDOWN) {
+            int foundKey = checkForKeyPress(&e);
+            if (foundKey == Keypad[ch8key]) {
+                chip8->V[x] = foundKey;
+                chip8->pc += 2;
+                return;
+            }
+        }
+    }
+
     chip8->pc += 2;
 }
 
@@ -345,14 +361,18 @@ void opcode_Fx07(Chip8 *chip8) {
 void opcode_Fx0A(Chip8 *chip8) {
     // Wait for a key press, store the value of the key in Vx.
     uint8_t x = (chip8->opcode & 0x0F00) >> 8;
+
+    SDL_Event e;
+    u_int8_t foundKey = 0;
     while (1) {
-        for (int i = 0; i < KEYPAD_SIZE; ++i) {
-            int sdlKeyValue = chip8->keypad[i];
-            const uint8_t keyPressedState = SDL_GetKeyboardState(NULL)[sdlKeyValue];
-            if (keyPressedState) {
-                chip8->V[x] = i;
-                chip8->pc += 2;
-                return;
+        while(SDL_PollEvent(&e)) {
+            if (e.type == SDL_KEYDOWN) {
+                foundKey = checkForKeyPress(&e);
+                if (foundKey != -1) {
+                    chip8->V[x] = foundKey;
+                    chip8->pc += 2;
+                    return;
+                }
             }
         }
     }

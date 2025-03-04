@@ -59,24 +59,6 @@ void initialize(Chip8 *chip8) {
         chip8->memory[i] = chip8_fontset[i];
     }
 
-    // keyboard mapping values
-    chip8->keypad[0x1] = SDLK_1;
-    chip8->keypad[0x2] = SDLK_2;
-    chip8->keypad[0x3] = SDLK_3;
-    chip8->keypad[0xC] = SDLK_4;
-    chip8->keypad[0x4] = SDLK_q;
-    chip8->keypad[0x5] = SDLK_w;
-    chip8->keypad[0x6] = SDLK_e;
-    chip8->keypad[0xD] = SDLK_r;
-    chip8->keypad[0x7] = SDLK_a;
-    chip8->keypad[0x8] = SDLK_s;
-    chip8->keypad[0x9] = SDLK_d;
-    chip8->keypad[0xE] = SDLK_f;
-    chip8->keypad[0xA] = SDLK_z;
-    chip8->keypad[0x0] = SDLK_x;
-    chip8->keypad[0xB] = SDLK_c;
-    chip8->keypad[0xF] = SDLK_v;
-
     // Reset timers
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
@@ -87,7 +69,8 @@ int main(int argc, char **argv) {
     initialize(&chip8);
 
     // Load ROM into memory starting at 0x200
-    FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
+    FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
+    //FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
     //FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
         fprintf(stderr, "Failed to open ROM\n");
@@ -98,10 +81,6 @@ int main(int argc, char **argv) {
 
     // Print memory at address 0x200
     printf("Memory at 0x200: %02X%02X\n", chip8.memory[0x200], chip8.memory[0x201]);
-    printf("Memory at 0x202: %02X%02X\n", chip8.memory[0x202], chip8.memory[0x203]);
-    printf("Memory at 0x204: %02X%02X\n", chip8.memory[0x204], chip8.memory[0x205]);
-    printf("Memory at 0x21E: %02X%02X\n", chip8.memory[0x21E], chip8.memory[0x21F]);
-    printf("Memory at 0x220: %02X%02X\n", chip8.memory[0x220], chip8.memory[0x221]);
 
     initDisplay(&chip8.display, "CHIP-8 Emulator", DISPLAY_WIDTH * 10, DISPLAY_HEIGHT * 10);
 

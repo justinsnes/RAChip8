@@ -12,7 +12,6 @@
 // there is also a 16-bit register I. Stores memory addresses.
 #define GENERAL_REGISTER_COUNT 16
 #define STACK_SIZE 16
-#define KEYPAD_SIZE 16
 
 #define RED_VAL 0
 #define GREEN_VAL 255
@@ -31,7 +30,6 @@ typedef struct {
     uint8_t delay_timer;
     uint8_t sound_timer;
 
-    uint8_t keypad[KEYPAD_SIZE];
     Display display;
     uint16_t opcode;
 } Chip8;

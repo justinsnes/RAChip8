@@ -10,21 +10,24 @@ all: RAChip8
 # as these are linker flags that should only be used during the final linking stage.
 # This is incorrect, as the OUTPUTFLAGS are REQUIRED during object file compilation
 # in order to attach the debugger to the executable using gdb.
-RAChip8: RAChip8.o Chip8.o Display.o Opcodes.o
-	$(CC) RAChip8.o Chip8.o Display.o Opcodes.o $(OUTPUTFLAGS) -o RAChip8
+RAChip8: RAChip8.o Chip8.o Display.o Keypad.o Opcodes.o
+	$(CC) RAChip8.o Chip8.o Display.o Keypad.o Opcodes.o $(OUTPUTFLAGS) -o RAChip8
 	chmod +x RAChip8
 
 RAChip8.o: RAChip8.c
 	$(CC) $(CFLAGS) RAChip8.c $(OUTPUTFLAGS)
 
-Opcodes.o: Opcodes.c Opcodes.h Chip8.h
-	$(CC) $(CFLAGS) Opcodes.c Chip8.c $(OUTPUTFLAGS)
+Opcodes.o: Opcodes.c Opcodes.h 
+	$(CC) $(CFLAGS) Opcodes.c $(OUTPUTFLAGS)
 
 Chip8.o: Chip8.c Chip8.h
 	$(CC) $(CFLAGS) Chip8.c $(OUTPUTFLAGS)
 
 Display.o: Display.c Display.h
 	$(CC) $(CFLAGS) Display.c $(OUTPUTFLAGS)
+
+Keypad.o: Keypad.c Keypad.h
+	$(CC) $(CFLAGS) Keypad.c $(OUTPUTFLAGS)
 
 target: dependencies
 	action
