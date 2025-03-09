@@ -258,7 +258,7 @@ void opcode_Bnnn(Chip8 *chip8) {
 void opcode_Cxkk(Chip8 *chip8) {
     // The interpreter generates a random number from 0 to 255, 
     // which is then ANDed with the value kk. The results are stored in Vx.
-    uint8_t rng = (uint8_t)((double)rand() / ((double)RAND_MAX + 1) * 255);
+    uint8_t rng = rand() % 256;
     uint8_t x = (chip8->opcode & 0x0F00) >> 8;
     uint8_t kk = chip8->opcode & 0x00FF;
     chip8->V[x] = rng & kk;

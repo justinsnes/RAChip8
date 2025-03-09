@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 #include <unistd.h>
 
 //sudo apt-get install libsdl2-dev
@@ -55,7 +56,6 @@ void initialize(Chip8 *chip8) {
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
-
     for (int i = 0; i < 80; ++i) {
         chip8->memory[i] = chip8_fontset[i];
     }
@@ -64,6 +64,10 @@ void initialize(Chip8 *chip8) {
     for (int i = 0; i < KEYS; i++) {
         pressedKeys[i] = 0;
     }
+
+    // generate seed for randomly generated numbers 
+    // (rand() would always be the same otherwise)
+    srand(time(NULL));
 
     // Reset timers
     chip8->delay_timer = 0;
