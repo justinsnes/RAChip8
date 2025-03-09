@@ -32,5 +32,5 @@ int checkForKeyPress(SDL_Event *event)
             }
         }
     }
-    return -1;
+    return 255;
 }

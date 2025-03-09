@@ -372,7 +372,7 @@ void opcode_Fx0A(Chip8 *chip8) {
     while (1) {
         while(SDL_PollEvent(&e)) {
             foundKey = checkForKeyPress(&e);
-            if (foundKey != -1) {
+            if (foundKey != 255) {
                 chip8->V[x] = foundKey;
                 chip8->pc += 2;
                 return;

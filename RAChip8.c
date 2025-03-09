@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
 
     // Load ROM into memory starting at 0x200
     //FILE *rom = fopen("TestROMs/Breakout [Carmelo Cortez, 1979].ch8", "rb");
-    FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
-    //FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
+    //FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
+    FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
     //FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
         fprintf(stderr, "Failed to open ROM\n");
@@ -295,7 +295,7 @@ int main(int argc, char **argv) {
         // Helps to slow down the emulation loop for a game like pong but 
         // breaks offstatic's chiptest.
         if (!isDraw) {
-            usleep(1000 * 5); // sleep for 10ms (in an effort to put a cap on CPU cycles)
+            usleep(1000 * 2); // sleep for 2ms (in an effort to put a cap on CPU cycles)
         }
         // a truely accurate implementation would be to measure each instruction's
         // microseconds individually. 
