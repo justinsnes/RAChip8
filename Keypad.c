@@ -13,6 +13,11 @@ uint8_t Keypad[KEYS] =
     SDLK_4, SDLK_r, SDLK_f, SDLK_v
 };
 
+uint8_t pressedKeys[KEYS] = 
+{
+    0
+};
+
 int checkForKeyPress(SDL_Event *event)
 {
     if (event->type == SDL_KEYDOWN)

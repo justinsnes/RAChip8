@@ -371,13 +371,11 @@ void opcode_Fx0A(Chip8 *chip8) {
     uint8_t foundKey = 0;
     while (1) {
         while(SDL_PollEvent(&e)) {
-            if (e.type == SDL_KEYDOWN) {
-                foundKey = checkForKeyPress(&e);
-                if (foundKey != -1) {
-                    chip8->V[x] = foundKey;
-                    chip8->pc += 2;
-                    return;
-                }
+            foundKey = checkForKeyPress(&e);
+            if (foundKey != -1) {
+                chip8->V[x] = foundKey;
+                chip8->pc += 2;
+                return;
             }
         }
     }

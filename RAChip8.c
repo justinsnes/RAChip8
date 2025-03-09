@@ -87,16 +87,16 @@ int main(int argc, char **argv) {
     fclose(rom);
 
     // Print memory at address 0x200
-    printf("Memory at 0x200: %02X%02X\n", chip8.memory[0x200], chip8.memory[0x201]);
+    //printf("Memory at 0x200: %02X%02X\n", chip8.memory[0x200], chip8.memory[0x201]);
 
     initDisplay(&chip8.display, "CHIP-8 Emulator", DISPLAY_WIDTH * 10, DISPLAY_HEIGHT * 10);
 
     // Set a few pixels in the corners for testing
-    setPixel(&chip8.display, 0, 0, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-    setPixel(&chip8.display, DISPLAY_WIDTH - 1, 0, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-    setPixel(&chip8.display, 0, DISPLAY_HEIGHT - 1, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-    setPixel(&chip8.display, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
-    updateDisplay(&chip8.display);
+    // setPixel(&chip8.display, 0, 0, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
+    // setPixel(&chip8.display, DISPLAY_WIDTH - 1, 0, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
+    // setPixel(&chip8.display, 0, DISPLAY_HEIGHT - 1, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
+    // setPixel(&chip8.display, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1, RED_VAL, GREEN_VAL, BLUE_VAL, ALPHA_VAL);
+    // updateDisplay(&chip8.display);
 
     // for measuring time to obtain 60hz/60fps
     Uint32 lastTime = SDL_GetTicks();

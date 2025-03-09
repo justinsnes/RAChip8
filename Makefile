@@ -33,6 +33,6 @@ target: dependencies
 	action
 
 clean: 
-	rm -f *.o
-	rm -f RAChip8
-	rm -f *.gch
+	$(RM) *.o
+	$(RM) RAChip8
+	$(RM) *.gch
