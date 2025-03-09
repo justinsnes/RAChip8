@@ -5,6 +5,7 @@
 
 #define KEYS 16
 extern uint8_t Keypad[KEYS];
+extern uint8_t pressedKeys[KEYS];
 
 int checkForKeyPress(SDL_Event *event);
 

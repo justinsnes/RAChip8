@@ -319,15 +319,10 @@ void opcode_Ex9E(Chip8 *chip8) {
 
     int foundKeyPresses = 0;
 
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        printf("Ex9E - Event type: %d\n", e.type);
-        if (e.type == SDL_KEYDOWN) {
-            int foundCh8Key = checkForKeyPress(&e);
-            if (foundCh8Key == ch8key) {
-                foundKeyPresses++;
-                break;
-            }
+    for (int i = 0; i < KEYS; ++i) {
+        if (pressedKeys[i] == ch8key) {
+            foundKeyPresses++;
+            break;
         }
     }
 
@@ -345,17 +340,10 @@ void opcode_ExA1(Chip8 *chip8) {
     
     int foundKeyPresses = 0;
 
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        printf("ExA1 - Event type: %d\n", e.type);
-        if (e.type == SDL_KEYDOWN) {
-            int foundCh8Key = checkForKeyPress(&e);
-            printf("ExA1 - Found Ch8 key: %d\n", foundCh8Key);
-            printf("ExA1 - ch8key to match: %d\n", ch8key);
-            if (foundCh8Key == ch8key) {
-                foundKeyPresses++;
-                break;
-            }
+    for (int i = 0; i < KEYS; ++i) {
+        if (pressedKeys[i] == ch8key) {
+            foundKeyPresses++;
+            break;
         }
     }
 

@@ -14,23 +14,25 @@ RAChip8: RAChip8.o Chip8.o Display.o Keypad.o Opcodes.o
 	$(CC) RAChip8.o Chip8.o Display.o Keypad.o Opcodes.o $(OUTPUTFLAGS) -o RAChip8
 	chmod +x RAChip8
 
-RAChip8.o: RAChip8.c
+RAChip8.o: RAChip8.c Chip8.h Opcodes.h Display.h Keypad.h
 	$(CC) $(CFLAGS) RAChip8.c $(OUTPUTFLAGS)
 
-Opcodes.o: Opcodes.c Opcodes.h 
+Opcodes.o: Opcodes.c Chip8.h Keypad.h
 	$(CC) $(CFLAGS) Opcodes.c $(OUTPUTFLAGS)
 
-Chip8.o: Chip8.c Chip8.h
+Chip8.o: Chip8.c Display.h
 	$(CC) $(CFLAGS) Chip8.c $(OUTPUTFLAGS)
 
-Display.o: Display.c Display.h
+Display.o: Display.c
 	$(CC) $(CFLAGS) Display.c $(OUTPUTFLAGS)
 
-Keypad.o: Keypad.c Keypad.h
+Keypad.o: Keypad.c
 	$(CC) $(CFLAGS) Keypad.c $(OUTPUTFLAGS)
 
 target: dependencies
 	action
 
 clean: 
-	rm *.o
+	rm -f *.o
+	rm -f RAChip8
+	rm -f *.gch

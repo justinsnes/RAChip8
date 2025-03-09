@@ -10,6 +10,7 @@
 #include "Chip8.h"
 #include "Display.h"
 #include "Opcodes.h"
+#include "Keypad.h"
 
 void initialize(Chip8 *chip8) {
     // 0x000 to 0x1FF reserved for interpreter itself
@@ -59,6 +60,11 @@ void initialize(Chip8 *chip8) {
         chip8->memory[i] = chip8_fontset[i];
     }
 
+    // reset pressed key states
+    for (int i = 0; i < KEYS; i++) {
+        pressedKeys[i] = 0;
+    }
+
     // Reset timers
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
@@ -98,17 +104,36 @@ int main(int argc, char **argv) {
 
     // Main emulation loop
     for (;;) {
-        // Helps to slow down the emulation loop for a game like pong but 
-        // breaks offstatic's chiptest.
-        usleep(1000 * 10); // sleep for 10ms (in an effort to put a cap on CPU cycles)
-        // a truely accurate implementation would be to measure each instruction's
-        // microseconds individually. 
+        // check for user interaction
+        // The way SDL_PollEvent works is it invokes SDL_PumpEvents internally
+        // then loops through the events in the queue while popping them out.
+        // This was why the events weren't being found in other calls when
+        // recalling SDL_PollEvent. (Key presses were being registered then dequeued)
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                destroyDisplay(&chip8.display);
+                return 0;
+            } else if (event.type == SDL_KEYDOWN) {
+                for (int i = 0; i < KEYS; i++) {
+                    if (event.key.keysym.sym == Keypad[i]) {
+                        pressedKeys[i] = i;
+                    }
+                }
+            } else if (event.type == SDL_KEYUP) {
+                for (int i = 0; i < KEYS; ++i) {
+                    if (event.key.keysym.sym == Keypad[i]) {
+                        pressedKeys[i] = 0;
+                    }
+                }
+            }
+        }
 
-        // Fetch, decode, and execute instructions
         // Fetch opcode using bitwise or operator. 
         // First byte is the high byte. second byte is the low byte.
         chip8.opcode = chip8.memory[chip8.pc] << 8 | chip8.memory[chip8.pc + 1];
 
+        bool isDraw = false;
         // Decode and execute opcode
         switch (chip8.opcode & 0xF000) {
             case 0x0000:
@@ -193,6 +218,7 @@ int main(int argc, char **argv) {
                 break;
             case 0xD000:
                 opcode_Dxyn(&chip8);
+                isDraw = true;
                 break;
             case 0xE000:
                 switch (chip8.opcode & 0x00FF) {
@@ -265,6 +291,14 @@ int main(int argc, char **argv) {
                 --chip8.sound_timer;
             }
         }
+
+        // Helps to slow down the emulation loop for a game like pong but 
+        // breaks offstatic's chiptest.
+        if (!isDraw) {
+            usleep(1000 * 5); // sleep for 10ms (in an effort to put a cap on CPU cycles)
+        }
+        // a truely accurate implementation would be to measure each instruction's
+        // microseconds individually. 
         
     }
 
