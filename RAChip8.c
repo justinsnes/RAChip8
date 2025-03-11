@@ -80,8 +80,8 @@ int main(int argc, char **argv) {
 
     // Load ROM into memory starting at 0x200
     //FILE *rom = fopen("TestROMs/Breakout [Carmelo Cortez, 1979].ch8", "rb");
-    //FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
-    FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
+    FILE *rom = fopen("TestROMs/Pong (1 player).ch8", "rb");
+    //FILE *rom = fopen("TestROMs/Hi-Lo [Jef Winsor, 1978].ch8", "rb");
     //FILE *rom = fopen("TestROMs/chiptest-offstatic.ch8", "rb");
     if (rom == NULL) {
         fprintf(stderr, "Failed to open ROM\n");
@@ -103,8 +103,15 @@ int main(int argc, char **argv) {
     // updateDisplay(&chip8.display);
 
     // for measuring time to obtain 60hz/60fps
+    // A close benchmark for attempting to match the Cosmac VIP which
+    // Chip8 originally ran on. (roughly 11 frames per second)
+    // The true implementation would try to emulate exact timings since they
+    // all vary by instruction on the CPU, but that's not needed.
+    // The user would know no different.
     Uint32 lastTime = SDL_GetTicks();
     double delta = 0;
+    int instructionsPerFrame = 11;
+    int instructionsExecutedThisFrame = 0;
 
     // Main emulation loop
     for (;;) {
@@ -131,6 +138,21 @@ int main(int argc, char **argv) {
                     }
                 }
             }
+        }
+
+        // Measure game frames at 60Hz
+        Uint32 currentTime = SDL_GetTicks();
+        delta = (currentTime - lastTime);
+        bool nextFrame = false;
+        if (delta >= 1000.0 / 60.0) {
+            //fprintf(stderr, "frame detected at %d - %d = %f\n", currentTime, lastTime, delta);
+            lastTime = currentTime;
+            delta = 0;
+            nextFrame = true;
+        }
+
+        if (instructionsExecutedThisFrame >= instructionsPerFrame && nextFrame == false) {
+            continue;
         }
 
         // Fetch opcode using bitwise or operator. 
@@ -276,17 +298,9 @@ int main(int argc, char **argv) {
                 break;
         }
 
-        // Update timers at a rate of 60Hz
-        Uint32 currentTime = SDL_GetTicks();
-        delta = (currentTime - lastTime);
-        bool nextFrame = false;
-        if (delta >= 1000.0 / 60.0) {
-            //fprintf(stderr, "frame detected at %d - %d = %f\n", currentTime, lastTime, delta);
-            lastTime = currentTime;
-            delta = 0;
-            nextFrame = true;
-        }
+        instructionsExecutedThisFrame++;
 
+        // Update timers at 60hz
         if (nextFrame) {
             if (chip8.delay_timer > 0) {
                 --chip8.delay_timer;
@@ -294,15 +308,8 @@ int main(int argc, char **argv) {
             if (chip8.sound_timer > 0) {
                 --chip8.sound_timer;
             }
+            instructionsExecutedThisFrame = 0;
         }
-
-        // Helps to slow down the emulation loop for a game like pong but 
-        // breaks offstatic's chiptest.
-        if (!isDraw) {
-            usleep(1000 * 2); // sleep for 2ms (in an effort to put a cap on CPU cycles)
-        }
-        // a truely accurate implementation would be to measure each instruction's
-        // microseconds individually. 
         
     }
 
