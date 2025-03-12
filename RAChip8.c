@@ -5,6 +5,9 @@
 #include <time.h>
 #include <unistd.h>
 
+// sound
+#include <math.h>
+
 //sudo apt-get install libsdl2-dev
 #include <SDL2/SDL.h>
 
@@ -74,6 +77,18 @@ void initialize(Chip8 *chip8) {
     chip8->sound_timer = 0;
 }
 
+void my_audio_callback(void* userdata, Uint8* stream, int length)
+{
+    Sint16* samples = (Sint16*) stream;
+    int sample_count = 32;
+
+    for (int i = 0; i < sample_count; ++i)
+    {
+        //samples[i] = rand() % 30000; // white noise
+        samples[i] = INT16_MAX * cos(2 * 3.14 * 440 * i / 14100); // sine wave
+    }
+}
+
 int main(int argc, char **argv) {
     Chip8 chip8;
     initialize(&chip8);
@@ -112,6 +127,26 @@ int main(int argc, char **argv) {
     double delta = 0;
     int instructionsPerFrame = 11;
     int instructionsExecutedThisFrame = 0;
+
+    // Sound
+    SDL_Init(SDL_INIT_AUDIO);
+
+    SDL_AudioSpec spec = {0};
+    spec.freq = 14100;
+    spec.format = AUDIO_S16SYS;
+    spec.channels = 1; // mono. 2 is stereo
+    spec.samples = 32;
+    spec.callback = my_audio_callback;
+    //SDL_OpenAudio(&spec, NULL);
+    SDL_AudioDeviceID device_id = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+
+    //SDL_MixAudioFormat((Uint8*)spec.userdata, (Uint8*)spec.userdata, AUDIO_S16SYS, 32, SDL_MIX_MAXVOLUME);
+
+    SDL_PauseAudioDevice(device_id, 0);
+    SDL_Delay(5000); // 5 seconds of audio
+    bool playingAudio = false;
+    SDL_PauseAudioDevice(device_id, 1);
+    
 
     // Main emulation loop
     for (;;) {
@@ -299,6 +334,14 @@ int main(int argc, char **argv) {
         }
 
         instructionsExecutedThisFrame++;
+
+        if (chip8.sound_timer > 0 && playingAudio == false) {
+            playingAudio = true;
+            SDL_PauseAudioDevice(device_id, 0); // start audio
+        } else if (chip8.sound_timer == 0 && playingAudio == true) {
+            playingAudio = false;
+            SDL_PauseAudioDevice(device_id, 1); // stop audio
+        }
 
         // Update timers at 60hz
         if (nextFrame) {

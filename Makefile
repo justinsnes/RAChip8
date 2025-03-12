@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS = -c
-OUTPUTFLAGS = -lSDL2 -g3 -O0 # for debugging
+# -lSDL2 for SDL library. -lm for math library. -g3 for debugging. -O0 for no optimization.
+OUTPUTFLAGS = -lSDL2 -lm -g3 -O0
 RM = rm -f
 
 all: RAChip8
