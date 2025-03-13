@@ -34,4 +34,6 @@ typedef struct {
     uint16_t opcode;
 } Chip8;
 
+void initializeChip8(Chip8 *chip8);
+
 #endif // CHIP8_H

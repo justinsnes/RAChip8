@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
-#include <unistd.h>
-
 // sound
 #include <math.h>
 
@@ -15,67 +13,6 @@
 #include "Display.h"
 #include "Opcodes.h"
 #include "Keypad.h"
-
-void initialize(Chip8 *chip8) {
-    // 0x000 to 0x1FF reserved for interpreter itself
-    chip8->pc = 0x200; // Program counter starts at 0x200
-    chip8->opcode = 0;
-    chip8->I = 0;
-    chip8->sp = 0;
-    
-    // Clear stack, registers, and memory
-    for (int i = 0; i < STACK_SIZE; ++i) {
-        chip8->stack[i] = 0;
-    }
-    for (int i = 0; i < GENERAL_REGISTER_COUNT; ++i) {
-        chip8->V[i] = 0;
-    }
-    for (int i = 0; i < MEMORY_SIZE; ++i) {
-        chip8->memory[i] = 0;
-    }
-
-    // Load fontset
-    // Example translation of D character font to binary:
-    // 0xE0 = 11100000
-    // 0x90 = 10010000
-    // 0x90 = 10010000
-    // 0x90 = 10010000
-    // 0xE0 = 11100000
-    uint8_t chip8_fontset[80] = {
-        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-        0x20, 0x60, 0x20, 0x20, 0x70, // 1
-        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-    };
-    for (int i = 0; i < 80; ++i) {
-        chip8->memory[i] = chip8_fontset[i];
-    }
-
-    // reset pressed key states
-    for (int i = 0; i < KEYS; i++) {
-        pressedKeys[i] = 0;
-    }
-
-    // generate seed for randomly generated numbers 
-    // (rand() would always be the same otherwise)
-    srand(time(NULL));
-
-    // Reset timers
-    chip8->delay_timer = 0;
-    chip8->sound_timer = 0;
-}
 
 void my_audio_callback(void* userdata, Uint8* stream, int length)
 {
@@ -93,7 +30,16 @@ void my_audio_callback(void* userdata, Uint8* stream, int length)
 
 int main(int argc, char **argv) {
     Chip8 chip8;
-    initialize(&chip8);
+    initializeChip8(&chip8);
+
+    // reset pressed key states
+    for (int i = 0; i < KEYS; i++) {
+        pressedKeys[i] = 0;
+    }
+
+    // generate seed for randomly generated numbers 
+    // (rand() would always be the same otherwise)
+    srand(time(NULL));
 
     // Load ROM into memory starting at 0x200
     //FILE *rom = fopen("TestROMs/Breakout [Carmelo Cortez, 1979].ch8", "rb");
@@ -144,7 +90,6 @@ int main(int argc, char **argv) {
     spec.userdata = NULL;
     //SDL_OpenAudio(&spec, NULL);
     SDL_AudioDeviceID device_id = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
-
 
     SDL_PauseAudioDevice(device_id, 0);
     SDL_Delay(2000); // 2 seconds of audio
