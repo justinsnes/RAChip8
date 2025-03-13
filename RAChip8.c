@@ -79,13 +79,15 @@ void initialize(Chip8 *chip8) {
 
 void my_audio_callback(void* userdata, Uint8* stream, int length)
 {
-    Sint16* samples = (Sint16*) stream;
-    int sample_count = 32;
+    Sint16* buffer = (Sint16*) stream;
+    int sample_count = length / 2;
 
     for (int i = 0; i < sample_count; ++i)
     {
-        //samples[i] = rand() % 30000; // white noise
-        samples[i] = INT16_MAX * cos(2 * 3.14 * 440 * i / 14100); // sine wave
+        //buffer[i] = rand() % 30000; // white noise
+        //buffer[i] = 4000 * cos(2 * 3.14 * 440 * i / 44100); // sine wave
+        buffer[i] = 2000 * (i % 128 < 64 ? 1 : -1); // Simple square wave
+        // amplitude * (i % period < period / 2 ? 1 : -1)
     }
 }
 
@@ -125,7 +127,9 @@ int main(int argc, char **argv) {
     // The user would know no different.
     Uint32 lastTime = SDL_GetTicks();
     double delta = 0;
-    int instructionsPerFrame = 11;
+    // docs and other resources online recommend this to be at 11
+    // but it appears to run best on my machine at 9. especially for games like Breakout
+    int instructionsPerFrame = 9;
     int instructionsExecutedThisFrame = 0;
 
     // Sound
@@ -135,18 +139,25 @@ int main(int argc, char **argv) {
     spec.freq = 14100;
     spec.format = AUDIO_S16SYS;
     spec.channels = 1; // mono. 2 is stereo
-    spec.samples = 32;
+    spec.samples = 256;
     spec.callback = my_audio_callback;
+    spec.userdata = NULL;
     //SDL_OpenAudio(&spec, NULL);
     SDL_AudioDeviceID device_id = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
 
-    //SDL_MixAudioFormat((Uint8*)spec.userdata, (Uint8*)spec.userdata, AUDIO_S16SYS, 32, SDL_MIX_MAXVOLUME);
 
     SDL_PauseAudioDevice(device_id, 0);
-    SDL_Delay(5000); // 5 seconds of audio
-    bool playingAudio = false;
+    SDL_Delay(2000); // 2 seconds of audio
     SDL_PauseAudioDevice(device_id, 1);
-    
+    SDL_Delay(500);
+    bool playingAudio = false;
+    // Audio countdown test
+    for (int i = 0; i < 3; i++) {
+        SDL_PauseAudioDevice(device_id, 0);
+        SDL_Delay(500);
+        SDL_PauseAudioDevice(device_id, 1);
+        SDL_Delay(500);
+    }
 
     // Main emulation loop
     for (;;) {
@@ -159,6 +170,8 @@ int main(int argc, char **argv) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 destroyDisplay(&chip8.display);
+                SDL_CloseAudioDevice(device_id);
+                SDL_Quit();
                 return 0;
             } else if (event.type == SDL_KEYDOWN) {
                 for (int i = 0; i < KEYS; i++) {

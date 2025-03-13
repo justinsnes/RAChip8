@@ -26,8 +26,7 @@ int checkForKeyPress(SDL_Event *event)
         {
             if (event->key.keysym.sym == Keypad[i])
             {
-                printf("Key pressed: %x\n", i);
-
+                //printf("Key pressed: %x\n", i);
                 return i;
             }
         }
